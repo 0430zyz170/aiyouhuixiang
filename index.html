@@ -1,0 +1,1746 @@
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>爱没有终点 · 张泽禹</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --green:#3ddc84;
+  --green-2:#2ea043;
+  --green-dim:#1a5c33;
+  --text:#e2f2e8;
+  --muted:#7fa894;
+  --bg:#030806;
+}
+
+html,body{height:100%;}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:radial-gradient(ellipse at 50% -10%, #0d2a1c 0%, #061009 45%, #020604 100%);
+  color:var(--text);
+  overflow:hidden;
+}
+
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ============ 开场 ============ */
+#intro{
+  position:fixed;inset:0;z-index:20;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;
+  transition:opacity .9s ease, transform .9s ease;
+  padding:24px;
+}
+#intro.hide{opacity:0;transform:scale(1.1);pointer-events:none;}
+
+.planet-wrap{
+  position:relative;width:200px;height:200px;
+  margin-bottom:6px;
+}
+.planet{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%, #a9f5c4 0%, #4ede8d 20%, #21a05a 46%, #0d4a28 72%, #052512 100%);
+  box-shadow:0 0 70px rgba(61,220,132,.45),
+             0 0 150px rgba(61,220,132,.18),
+             inset -18px -18px 48px rgba(0,0,0,.68);
+  overflow:hidden;
+  animation:planetFloat 6s ease-in-out infinite;
+}
+.planet::before{
+  content:'';position:absolute;inset:-60%;
+  background:repeating-linear-gradient(112deg,
+     rgba(255,255,255,.10) 0 9px,
+     rgba(0,0,0,.07) 9px 24px,
+     transparent 24px 56px);
+  animation:spin 28s linear infinite;
+  filter:blur(1.2px);
+}
+.planet::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 30% 24%, rgba(255,255,255,.32), transparent 46%);
+  pointer-events:none;
+}
+.planet-glow{
+  position:absolute;inset:-30px;border-radius:50%;
+  background:radial-gradient(circle, rgba(61,220,132,.22), transparent 62%);
+  animation:glowPulse 4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes planetFloat{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+}
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+@keyframes glowPulse{
+  0%,100%{opacity:.55;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.08);}
+}
+
+.title{
+  font-size:32px;letter-spacing:10px;font-weight:300;
+  color:#eafff2;text-indent:10px;
+  text-shadow:0 0 34px rgba(61,220,132,.7), 0 0 70px rgba(61,220,132,.35);
+  animation:fadeUp 1.3s ease both .25s;
+}
+.subtitle{
+  font-size:12.5px;color:var(--muted);letter-spacing:1.2px;
+  text-align:center;max-width:310px;line-height:2;
+  animation:fadeUp 1.3s ease both .55s;
+}
+.subtitle em{color:#9ee8bd;font-style:normal;}
+
+.btn-primary{
+  margin-top:12px;
+  padding:13px 36px;border-radius:999px;
+  background:linear-gradient(135deg, rgba(61,220,132,.24), rgba(61,220,132,.07));
+  border:1px solid rgba(61,220,132,.5);
+  color:#c9ffe0;font-size:13.5px;letter-spacing:3px;
+  cursor:pointer;transition:all .3s;
+  backdrop-filter:blur(6px);
+  font-family:inherit;
+  animation:fadeUp 1.3s ease both .9s;
+}
+.btn-primary:hover{background:rgba(61,220,132,.3);box-shadow:0 0 34px rgba(61,220,132,.45);}
+.btn-primary:active{transform:scale(.96);}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:none;}
+}
+
+/* ============ 游戏主界面 ============ */
+#game{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .9s ease;
+}
+#game.show{opacity:1;pointer-events:auto;}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 6px;flex-shrink:0;
+}
+.brand{
+  font-size:12px;letter-spacing:5px;color:var(--green);opacity:.75;
+  display:flex;align-items:center;gap:8px;
+}
+.brand-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 10px var(--green);
+  animation:dotBlink 2s ease-in-out infinite;
+}
+@keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.tools{display:flex;gap:7px;align-items:center;}
+.tools button{
+  width:34px;height:34px;border-radius:50%;
+  border:1px solid rgba(61,220,132,.25);
+  background:rgba(61,220,132,.07);
+  color:#bff5d6;font-size:14px;cursor:pointer;
+  transition:all .25s;
+  display:flex;align-items:center;justify-content:center;
+  font-family:inherit;
+}
+.tools button:active{transform:scale(.9);background:rgba(61,220,132,.22);}
+
+.progress{
+  height:2px;margin:0 16px;
+  background:rgba(255,255,255,.07);
+  border-radius:2px;overflow:hidden;flex-shrink:0;
+}
+.progress-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,#1e7a45,#3ddc84);
+  box-shadow:0 0 12px rgba(61,220,132,.8);
+  transition:width .9s cubic-bezier(.4,0,.2,1);
+}
+.chapter{
+  text-align:center;font-size:11px;letter-spacing:3.5px;
+  color:var(--muted);padding:10px 0 6px;flex-shrink:0;
+}
+
+.stage{
+  flex:1;display:flex;flex-direction:column;
+  min-height:0;padding:0 16px;gap:12px;
+}
+
+/* 照片框 */
+.photo-frame{
+  position:relative;flex-shrink:0;
+  height:148px;border-radius:18px;
+  background:linear-gradient(160deg, rgba(61,220,132,.10), rgba(61,220,132,.02));
+  border:1px solid rgba(61,220,132,.18);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-placeholder{
+  font-size:46px;opacity:.72;
+  filter:drop-shadow(0 0 22px rgba(61,220,132,.6));
+  animation:floatEmoji 4s ease-in-out infinite;
+}
+@keyframes floatEmoji{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-6px) scale(1.05);}
+}
+.upload-photo{
+  position:absolute;right:10px;bottom:10px;
+  padding:5px 12px;border-radius:999px;font-size:11px;
+  background:rgba(4,14,9,.78);
+  border:1px solid rgba(61,220,132,.35);
+  color:#9fe8bd;cursor:pointer;
+  backdrop-filter:blur(4px);
+  font-family:inherit;
+}
+.upload-photo:active{background:rgba(61,220,132,.25);}
+
+/* 对话区 */
+.dialog{
+  flex:1;min-height:0;overflow-y:auto;
+  display:flex;flex-direction:column;gap:10px;
+  padding:6px 2px 14px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.dialog::-webkit-scrollbar{display:none;}
+
+.bubble{
+  max-width:86%;
+  padding:10px 14px;
+  border-radius:16px;
+  font-size:13.5px;
+  line-height:1.8;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .55s ease, transform .55s ease;
+  word-break:break-word;
+}
+.bubble.show{opacity:1;transform:none;}
+
+.bubble-narration{
+  align-self:center;max-width:94%;
+  text-align:center;font-size:12px;color:#8fb9a3;
+  background:transparent;padding:4px 6px;
+  letter-spacing:.6px;line-height:2;
+}
+.bubble-narration::before{
+  content:'· ';color:rgba(61,220,132,.6);
+}
+
+.bubble-ziyu{
+  align-self:flex-end;
+  background:linear-gradient(135deg, rgba(61,220,132,.22), rgba(61,220,132,.08));
+  border:1px solid rgba(61,220,132,.32);
+  border-bottom-right-radius:5px;
+  color:#d8ffe9;
+  box-shadow:0 0 22px rgba(61,220,132,.10);
+}
+
+.bubble-mother{
+  align-self:flex-start;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.11);
+  border-bottom-left-radius:5px;
+  color:#d3e8dc;
+}
+
+.bubble-thought{
+  align-self:flex-start;
+  background:rgba(255,255,255,.028);
+  border:1px dashed rgba(255,255,255,.10);
+  border-bottom-left-radius:5px;
+  color:#93b3a3;
+  font-style:italic;
+  font-size:12.8px;
+}
+
+/* 选项区 */
+.options{
+  flex-shrink:0;
+  padding:8px 16px calc(16px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:8px;
+  background:linear-gradient(to top, rgba(2,6,4,.96), rgba(2,6,4,.6) 60%, transparent);
+}
+.opt-btn{
+  width:100%;text-align:left;
+  padding:12px 16px;border-radius:14px;
+  background:rgba(61,220,132,.07);
+  border:1px solid rgba(61,220,132,.22);
+  color:#cdf3de;font-size:13.5px;line-height:1.55;
+  cursor:pointer;transition:all .25s;
+  font-family:inherit;
+  animation:optIn .45s ease both;
+}
+.opt-btn:nth-child(1){animation-delay:.02s;}
+.opt-btn:nth-child(2){animation-delay:.10s;}
+.opt-btn:nth-child(3){animation-delay:.18s;}
+@keyframes optIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:none;}
+}
+.opt-btn:hover{background:rgba(61,220,132,.16);border-color:rgba(61,220,132,.5);transform:translateX(3px);}
+.opt-btn:active{transform:scale(.985);}
+
+.custom-row{display:flex;gap:8px;animation:optIn .5s ease both .26s;}
+.custom-row input{
+  flex:1;min-width:0;
+  padding:12px 14px;border-radius:14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(61,220,132,.2);
+  color:var(--text);font-size:13.5px;font-family:inherit;
+  outline:none;transition:all .25s;
+}
+.custom-row input:focus{
+  border-color:rgba(61,220,132,.6);
+  box-shadow:0 0 18px rgba(61,220,132,.16);
+  background:rgba(61,220,132,.06);
+}
+.custom-row input::placeholder{color:#5f7d6d;}
+.custom-row button{
+  padding:0 18px;border-radius:14px;
+  background:rgba(61,220,132,.2);
+  border:1px solid rgba(61,220,132,.45);
+  color:#c9ffe0;font-size:13px;cursor:pointer;
+  font-family:inherit;transition:all .25s;
+  white-space:nowrap;
+}
+.custom-row button:active{transform:scale(.95);background:rgba(61,220,132,.35);}
+
+.continue-btn{
+  width:100%;padding:14px;border-radius:14px;
+  background:linear-gradient(135deg, rgba(61,220,132,.28), rgba(61,220,132,.12));
+  border:1px solid rgba(61,220,132,.55);
+  color:#d8ffe9;font-size:14px;letter-spacing:4px;cursor:pointer;
+  font-family:inherit;
+  animation:pulseGlow 2.6s ease-in-out infinite;
+}
+.continue-btn:active{transform:scale(.98);}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 0 0 rgba(61,220,132,0);}
+  50%{box-shadow:0 0 26px rgba(61,220,132,.42);}
+}
+
+/* ============ 结局 ============ */
+#ending{
+  position:fixed;inset:0;z-index:30;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:24px;
+  background:radial-gradient(ellipse at 50% 40%, #0a2318 0%, #020604 75%);
+  opacity:0;pointer-events:none;
+  transition:opacity 1.1s ease;
+}
+#ending.show{opacity:1;pointer-events:auto;}
+
+.end-title{
+  font-size:26px;letter-spacing:9px;font-weight:300;
+  color:#eafff2;text-indent:9px;
+  text-shadow:0 0 34px rgba(61,220,132,.7);
+}
+.end-text{
+  font-size:12.5px;color:var(--muted);letter-spacing:1px;
+  text-align:center;max-width:320px;line-height:2.1;
+}
+.end-text em{color:#9ee8bd;font-style:normal;}
+.end-btns{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
+.btn-ghost{
+  padding:11px 24px;border-radius:999px;
+  background:transparent;
+  border:1px solid rgba(61,220,132,.35);
+  color:#a8e9c4;font-size:13px;letter-spacing:2px;
+  cursor:pointer;font-family:inherit;transition:all .3s;
+}
+.btn-ghost:hover{background:rgba(61,220,132,.12);border-color:rgba(61,220,132,.6);}
+.btn-ghost:active{transform:scale(.96);}
+
+/* ============ 弹窗 ============ */
+.modal{
+  position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.78);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.modal.show{opacity:1;pointer-events:auto;}
+.modal-box{
+  width:100%;max-width:380px;max-height:80vh;overflow-y:auto;
+  background:#0a1a12;
+  border:1px solid rgba(61,220,132,.25);
+  border-radius:20px;padding:22px;
+  box-shadow:0 0 70px rgba(0,0,0,.85);
+  scrollbar-width:none;
+}
+.modal-box::-webkit-scrollbar{display:none;}
+.modal-box h3{
+  font-size:14px;letter-spacing:3px;color:#bff5d6;
+  margin-bottom:16px;font-weight:400;
+}
+.slot{
+  padding:14px;border-radius:14px;
+  background:rgba(61,220,132,.05);
+  border:1px solid rgba(61,220,132,.15);
+  margin-bottom:10px;cursor:pointer;
+  transition:all .22s;
+}
+.slot:active{transform:scale(.985);}
+.slot:hover{background:rgba(61,220,132,.14);border-color:rgba(61,220,132,.35);}
+.slot.empty{opacity:.5;}
+.slot-title{font-size:13px;color:#c8f0da;}
+.slot-meta{font-size:11px;color:#5f7d6d;margin-top:5px;}
+
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;
+  border-bottom:1px solid rgba(255,255,255,.055);
+  font-size:13px;color:#c8e6d6;
+}
+.toggle{
+  padding:6px 18px;border-radius:999px;font-size:12px;
+  border:1px solid rgba(61,220,132,.3);
+  background:rgba(61,220,132,.06);
+  color:#8fb9a3;cursor:pointer;font-family:inherit;
+  transition:all .25s;
+}
+.toggle.on{
+  background:rgba(61,220,132,.28);
+  border-color:rgba(61,220,132,.65);
+  color:#d8ffe9;
+  box-shadow:0 0 16px rgba(61,220,132,.28);
+}
+.mini-btn{
+  padding:6px 18px;border-radius:999px;font-size:12px;
+  border:1px solid rgba(61,220,132,.35);
+  background:rgba(61,220,132,.12);
+  color:#bff5d6;cursor:pointer;font-family:inherit;
+}
+.mini-btn:active{transform:scale(.95);}
+.tip{
+  font-size:11px;color:#5f7d6d;line-height:1.9;margin-top:14px;
+}
+.modal-close{
+  width:100%;margin-top:16px;padding:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  color:#9fb8ab;font-size:13px;cursor:pointer;
+  font-family:inherit;letter-spacing:2px;
+}
+.modal-close:active{transform:scale(.98);}
+
+.hidden{display:none !important;}
+
+@media (min-width:560px){
+  .planet-wrap{width:250px;height:250px;}
+  .title{font-size:38px;}
+  .photo-frame{height:190px;}
+  .bubble{font-size:14px;max-width:78%;}
+  .opt-btn{font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- ========== 开场 ========== -->
+<div id="intro">
+  <div class="planet-wrap">
+    <div class="planet-glow"></div>
+    <div class="planet"></div>
+  </div>
+  <h1 class="title">爱没有终点</h1>
+  <p class="subtitle">爱没有说明书，可在小宝这里，他们做的比谁都好。</p>
+  <button class="btn-primary" id="enterBtn">进入 · 孔女士的视角</button>
+</div>
+
+<!-- ========== 游戏 ========== -->
+<div id="game">
+  <header class="topbar">
+    <div class="brand"><span class="brand-dot"></span>爱没有终点</div>
+    <div class="tools">
+      <button id="saveBtn" title="存档">💾</button>
+      <button id="loadBtn" title="读档">📂</button>
+      <button id="settingBtn" title="设置">⚙️</button>
+    </div>
+  </header>
+
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="chapter" id="chapterLabel">婴儿时期 · 2007</div>
+
+  <main class="stage">
+    <div class="photo-frame" id="photoFrame">
+      <div class="photo-placeholder" id="photoPlaceholder">👶</div>
+      <img id="photoImg" class="hidden" alt="">
+      <button class="upload-photo" id="uploadPhoto">＋ 上传照片</button>
+    </div>
+    <div class="dialog" id="dialog"></div>
+  </main>
+
+  <footer class="options" id="options"></footer>
+</div>
+
+<!-- ========== 结局 ========== -->
+<div id="ending">
+  <div class="planet-wrap" style="width:150px;height:150px;">
+    <div class="planet-glow"></div>
+    <div class="planet"></div>
+  </div>
+  <h2 class="end-title">爱没有终点</h2>
+  <p class="end-text">
+    从那个抱着报纸喊妈妈的小豆丁，<br>
+    到此刻被无数人爱着的人。<br><br>
+    孔女士，<em>谢谢你一直看着他长大。</em>
+  </p>
+  <div class="end-btns">
+    <button class="btn-ghost" id="restartBtn">重新开始</button>
+    <button class="btn-ghost" id="freeModeBtn">自由模式</button>
+  </div>
+</div>
+
+<!-- ========== 弹窗 ========== -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle">存档</h3>
+    <div id="modalBody"></div>
+    <button class="modal-close" id="modalClose">关 闭</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   一、音效引擎
+   ========================================================= */
+let audioCtx = null;
+
+function getCtx(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    audioCtx = new AC();
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function beep(o){
+  const ctx = getCtx();
+  if(!ctx) return;
+  const {
+    freq = 440, dur = .3, type = 'sine',
+    gain = .06, when = 0, slideTo = null
+  } = o || {};
+  const t0 = ctx.currentTime + when;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  if(slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(gain, t0 + .025);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + .06);
+}
+
+function noise(o){
+  const ctx = getCtx();
+  if(!ctx) return;
+  const { dur = 1, gain = .05, when = 0, filterFreq = 1000, q = 1 } = o || {};
+  const t0 = ctx.currentTime + when;
+  const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = filterFreq;
+  filter.Q.value = q;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(gain, t0 + dur * .3);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(filter).connect(g).connect(ctx.destination);
+  src.start(t0);
+  src.stop(t0 + dur + .06);
+}
+
+const SFX = {
+  click(){ beep({freq:680, dur:.07, type:'triangle', gain:.035}); },
+  piano(){
+    beep({freq:523.25, dur:1.3, type:'sine', gain:.05});
+    beep({freq:659.25, dur:1.3, type:'sine', gain:.038, when:.09});
+    beep({freq:783.99, dur:1.5, type:'sine', gain:.028, when:.18});
+  },
+  laugh(){
+    [880,990,880,1120,990,1050].forEach((f,i)=>
+      beep({freq:f, dur:.11, type:'sine', gain:.032, when:i*.125}));
+  },
+  train(){
+    noise({dur:1.7, gain:.045, filterFreq:420, q:.8});
+    beep({freq:230, dur:1.5, type:'sawtooth', gain:.026, slideTo:178});
+    noise({dur:.5, gain:.03, filterFreq:1800, q:1.2, when:1.1});
+  },
+  message(){
+    beep({freq:880, dur:.11, type:'sine', gain:.05});
+    beep({freq:1174, dur:.19, type:'sine', gain:.05, when:.13});
+  },
+  crowd(){
+    noise({dur:2.6, gain:.05, filterFreq:1150, q:.6});
+    noise({dur:2.1, gain:.03, filterFreq:2400, q:.9, when:.25});
+    beep({freq:523, dur:.6, type:'sine', gain:.018, when:.4});
+  },
+  heart(){
+    beep({freq:72, dur:.28, type:'sine', gain:.11});
+    beep({freq:62, dur:.3, type:'sine', gain:.085, when:.33});
+  },
+  star(){
+    beep({freq:1320, dur:.8, type:'sine', gain:.028});
+    beep({freq:1760, dur:1.0, type:'sine', gain:.02, when:.11});
+    beep({freq:2093, dur:1.2, type:'sine', gain:.013, when:.22});
+  },
+  paper(){
+    noise({dur:.42, gain:.032, filterFreq:3000, q:1.6});
+    noise({dur:.28, gain:.024, filterFreq:4200, q:2, when:.2});
+  },
+  shutter(){
+    noise({dur:.07, gain:.055, filterFreq:4200, q:2.2});
+    noise({dur:.09, gain:.04, filterFreq:2200, q:1.4, when:.09});
+  },
+  cry(){
+    beep({freq:440, dur:1.0, type:'sine', gain:.032, slideTo:392});
+    beep({freq:330, dur:1.2, type:'sine', gain:.018, when:.3});
+  },
+  whoosh(){
+    noise({dur:.95, gain:.038, filterFreq:620, q:.5});
+  },
+  bell(){
+    beep({freq:1046, dur:1.4, type:'sine', gain:.03});
+    beep({freq:1568, dur:1.6, type:'sine', gain:.018, when:.05});
+  }
+};
+
+function playSfx(name){
+  if(!state.sfxOn) return;
+  const fn = SFX[name];
+  if(fn) fn();
+}
+
+/* =========================================================
+   二、背景音乐
+   ========================================================= */
+let bgmAudio = null;
+let bgmTimer = null;
+let bgmStep = 0;
+
+const BGM_NOTES = [261.63, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63];
+
+function bgmTick(){
+  if(!state.bgmOn) return;
+  const f = BGM_NOTES[bgmStep % BGM_NOTES.length];
+  beep({freq:f, dur:2.3, type:'sine', gain:.019});
+  if(bgmStep % 4 === 0){
+    beep({freq:f / 2, dur:3.4, type:'sine', gain:.012});
+  }
+  if(bgmStep % 8 === 6){
+    beep({freq:f * 1.5, dur:1.8, type:'sine', gain:.009});
+  }
+  bgmStep++;
+}
+
+function startBGM(){
+  if(!state.bgmOn) return;
+  if(bgmAudio){
+    bgmAudio.volume = .35;
+    bgmAudio.play().catch(()=>{});
+    return;
+  }
+  if(bgmTimer) return;
+  bgmStep = 0;
+  bgmTick();
+  bgmTimer = setInterval(bgmTick, 950);
+}
+
+function stopBGM(){
+  if(bgmTimer){ clearInterval(bgmTimer); bgmTimer = null; }
+  if(bgmAudio) bgmAudio.pause();
+}
+
+function loadBGMFile(file){
+  stopBGM();
+  bgmAudio = new Audio(URL.createObjectURL(file));
+  bgmAudio.loop = true;
+  bgmAudio.volume = .35;
+  bgmAudio.play().catch(()=>{});
+}
+
+/* =========================================================
+   三、状态
+   ========================================================= */
+const state = {
+  nodeIndex: 0,
+  choices: {},
+  images: {},
+  avatar: null,
+  bgmOn: true,
+  sfxOn: true
+};
+
+const SETTINGS_KEY = 'amyy_settings_v1';
+const SAVE_KEY = 'amyy_saves_v1';
+
+function persistSettings(){
+  try{
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      bgmOn: state.bgmOn,
+      sfxOn: state.sfxOn
+    }));
+  }catch(e){}
+}
+
+function restoreSettings(){
+  try{
+    const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if(s){
+      if(typeof s.bgmOn === 'boolean') state.bgmOn = s.bgmOn;
+      if(typeof s.sfxOn === 'boolean') state.sfxOn = s.sfxOn;
+    }
+  }catch(e){}
+}
+
+/* =========================================================
+   四、全局关键词
+   ========================================================= */
+const GLOBAL_KW = [
+  {kw:['妈妈','妈'],        r:'（他顿了一下，声音软下来）……妈妈。'},
+  {kw:['爱你','喜欢你','爱你呀'], r:'（他耳朵有点红）……我知道。我也爱你。'},
+  {kw:['累','辛苦','休息','歇'], r:'（他摇摇头）不累。真的。做喜欢的事不累。'},
+  {kw:['骄傲','自豪'],       r:'（他害羞地挠了挠头）……别说了。我会更努力的。'},
+  {kw:['哭','眼泪','别哭'],   r:'（他有点慌）你别哭啊。我这不是好好的吗。'},
+  {kw:['想你','想念','好久不见'], r:'（他笑）我也想你。等我忙完这阵就回家。'},
+  {kw:['加油','努力','相信'],  r:'（他握了握拳）嗯！我会的。'},
+  {kw:['谢谢','感谢'],       r:'（他愣了一下）……妈，你跟我说什么谢谢。'},
+  {kw:['回家','回来'],       r:'（他点头）嗯，我尽量早点回。'},
+  {kw:['吃饭','吃好','身体'],  r:'知道啦——你也好好吃饭，别老是不吃早饭。'}
+];
+
+/* =========================================================
+   五、剧情数据（18 个节点）
+   ========================================================= */
+const NODES = [
+  /* ---------- 1：婴儿 ---------- */
+  {
+    id:'baby', year:'2007', label:'婴儿时期 · 哈尔滨', emoji:'👶', photoHint:'上传婴儿时期照片',
+    lines:[
+      {t:'narration', s:'2007年4月30日，哈尔滨。你第一次抱住他，那么小，那么软。'},
+      {t:'narration', s:'他的小手攥住你的衣角，怎么也不肯松开。'},
+      {t:'ziyu',      s:'……（咿咿呀呀的声音）'},
+      {t:'thought',   s:'这么小的一个人，以后要面对多大的世界啊。'}
+    ],
+    options:[
+      {s:'「小宝，妈妈在呢」',      r:'（婴儿发出咯咯的笑声，小手朝你的方向挥动）',              sfx:'laugh'},
+      {s:'「你要健康长大呀」',      r:'（他安静下来，攥着衣角的手松了松，像是在说「好」）',        sfx:'piano'},
+      {s:'「妈妈会一直陪着你」',    r:'（他的眼睛眨了眨，直直地望向你的方向）',                  sfx:'heart'}
+    ],
+    custom:[
+      {kw:['想你','想念'],   r:'（他好像听懂了，小嘴瘪了瘪，往你怀里拱了拱）'},
+      {kw:['爱你','喜欢'],   r:'（他咯咯笑起来，口水蹭了你一身，小手拍着你的脸）'},
+      {kw:['长大','未来'],   r:'（他攥紧了你的手指，力气小小的，却很认真）'},
+      {kw:['哭','累','辛苦'], r:'（他安静下来，小手抬起来，胡乱地拍了拍你的脸颊）'},
+      {kw:['小宝','宝'],     r:'（他歪了歪头，像是对这个称呼有反应，眼睛弯成了月牙）'}
+    ]
+  },
+
+  /* ---------- 2：三岁 · 电视里的小歌手 ---------- */
+  {
+    id:'firstsong', year:'2010', label:'三岁 · 电视里的小歌手', emoji:'🎤', photoHint:'上传三四岁时期照片',
+    lines:[
+      {t:'narration', s:'2010年，他三岁。那天客厅的电视开着，放着一首老歌。'},
+      {t:'narration', s:'你从厨房出来，看见他站在沙发上，手里握着遥控器当话筒，一本正经地跟着唱。'},
+      {t:'ziyu',      s:'（奶声奶气，调子跑了半条街）……妈妈，我唱得好不好听？'},
+      {t:'thought',   s:'你愣住了。你不知道一个三岁的孩子，怎么会把一整段旋律记得这么清楚。'}
+    ],
+    options:[
+      {s:'「好听！小宝唱得最好听」',     r:'（眼睛一下子亮起来）那我再唱一遍！——（然后又从头唱起）', sfx:'laugh'},
+      {s:'「小宝以后想当歌手吗？」',     r:'（用力点头，点得太用力差点从沙发上栽下来）想！我要站在好大好大的台上唱！', sfx:'piano'},
+      {s:'「来，妈妈给你录下来」',       r:'（立刻站得笔直，还很认真地清了清嗓子）那我唱喽——', sfx:'shutter'}
+    ],
+    custom:[
+      {kw:['唱','唱歌','歌'],      r:'（他又从头唱了一遍，这次特别认真，小手还跟着节奏比划）'},
+      {kw:['好听','棒','厉害'],    r:'（他拍着手跳起来）耶！那我每天唱给你听！'},
+      {kw:['明星','舞台','电视'],  r:'（他指着电视）我要去那里！站那么高！'},
+      {kw:['话筒','遥控器'],       r:'（他把遥控器举得更高了）这是我的话筒！不许抢！'},
+      {kw:['小宝','宝贝'],         r:'（他歪头）妈妈，你怎么老叫我小宝呀。'}
+    ]
+  },
+
+  /* ---------- 3：童年 · 报纸上的妈妈 ---------- */
+  {
+    id:'child', year:'2012', label:'童年 · 报纸上的妈妈', emoji:'📰', photoHint:'上传童年时期照片',
+    lines:[
+      {t:'narration', s:'小小的他趴在茶几前，认认真真地翻着报纸。'},
+      {t:'narration', s:'你从厨房探出头，听见他奶声奶气的声音——'},
+      {t:'ziyu',      s:'（翻着报纸，对着上面的字念叨）……大禹，你干什么呢？'},
+      {t:'ziyu',      s:'（找到什么，眼睛一亮，举着报纸跑向厨房）妈妈！妈妈！你看！'},
+      {t:'thought',   s:'他找到什么都第一个喊妈妈。哪怕只是报纸角落里的一行小字。'}
+    ],
+    options:[
+      {s:'「妈妈来了，小宝找到什么啦？」', r:'（把报纸举过头顶，小手指着上面）这里有想想！你看！', sfx:'paper'},
+      {s:'（蹲下来，把他抱进怀里）',        r:'（把脸埋进你的肩膀，闷闷地说）妈妈，我长大了要给你买好多好多报纸。', sfx:'piano'},
+      {s:'「小宝真棒，都会看报纸了」',      r:'（骄傲地拍拍自己的小胸膛）我长大了！', sfx:'laugh'}
+    ],
+    custom:[
+      {kw:['报纸','看报'],         r:'（又把报纸摊开，指着上面）这、这、还有这——都是我想想！'},
+      {kw:['聪明','厉害','棒'],    r:'（挺起小胸膛，下巴微微抬起来）那当然啦！'},
+      {kw:['妈妈','喊妈妈'],       r:'（立刻仰起头，眼睛亮亮地）妈妈！妈妈！妈妈！'},
+      {kw:['长大','以后'],         r:'（认真地想了想）我长大了要给你买好多好多东西。'},
+      {kw:['乖','懂事'],           r:'（他歪头看着你，然后跑过来抱住了你的腿）'}
+    ]
+  },
+
+  /* ---------- 4：十岁 · 想去学唱歌 ---------- */
+  {
+    id:'decide', year:'2017', label:'十岁 · 「妈妈，我想去学唱歌」', emoji:'🎒', photoHint:'上传十岁时期照片',
+    lines:[
+      {t:'narration', s:'2017年，他十岁。那天他放学回来，书包都还没来得及放下，就站在你面前。'},
+      {t:'ziyu',      s:'妈妈。我想去学唱歌。'},
+      {t:'narration', s:'他说得很小声，但眼睛一直看着你，没有躲。'},
+      {t:'thought',   s:'你知道这句话背后是什么。是离开哈尔滨，是去一个很远的城市，是一个十岁孩子不该承受的辛苦。'}
+    ],
+    options:[
+      {s:'「好，妈妈支持你」',              r:'（他愣住，然后眼睛一下子红了）……真的吗？（他大概以为你会拒绝）', sfx:'heart'},
+      {s:'「你想清楚了吗？会很辛苦」',      r:'（点头，点得很慢但是很用力）想清楚了。我不怕辛苦。', sfx:'piano'},
+      {s:'「让妈妈想想，好吗？」',          r:'（他低下头，小声说）好。（转身走了两步，又回头看你一眼）', sfx:'cry'}
+    ],
+    custom:[
+      {kw:['支持','答应','同意'],  r:'（他扑过来抱住你，脸埋在你怀里，闷闷地说）谢谢妈妈。'},
+      {kw:['辛苦','难','苦'],      r:'我不怕。真的。妈妈，我什么苦都能吃。'},
+      {kw:['唱歌','梦想','喜欢'],  r:'（他眼睛亮了）我就是喜欢唱。一唱歌我就特别开心。'},
+      {kw:['舍不得','离开','远'],  r:'（他安静了一下）……我会给你打电话的。'},
+      {kw:['为什么','原因'],       r:'因为……站在台上唱歌的时候，我觉得我是我自己。'}
+    ]
+  },
+
+  /* ---------- 5：十岁 · 第一次登台 ---------- */
+  {
+    id:'stage', year:'2017', label:'十岁 · 第一次登台', emoji:'🎪', photoHint:'上传第一次登台照片',
+    lines:[
+      {t:'narration', s:'2017年冬天，学校文艺汇演。他报了名，独唱。'},
+      {t:'narration', s:'你坐在台下第三排，手里攥着手机，比他还要紧张。'},
+      {t:'narration', s:'报幕声响起，他走上台。舞台灯比想象中亮，他眯了一下眼睛。'},
+      {t:'ziyu',      s:'（站在台上，攥着话筒，声音有点抖）……大家好，我叫张泽禹。'},
+      {t:'thought',   s:'台下有人小声笑。你屏住呼吸。然后他开口了——'}
+    ],
+    options:[
+      {s:'（在台下用力鼓掌）',          r:'（他听到了，往你的方向看了一眼，肩膀松下来，声音一下子稳了）', sfx:'crowd'},
+      {s:'（举起手机录下来）',          r:'（他唱到一半看见镜头，嘴角忍不住翘了一下，但很快又绷回去）', sfx:'shutter'},
+      {s:'（在心里跟着他一起唱）',      r:'（他唱完了，鞠了一躬，下台的时候脚步都是飘的）', sfx:'piano'}
+    ],
+    custom:[
+      {kw:['紧张','怕','抖'],       r:'（下台后跑过来，脸还是红的）妈，我刚才腿一直在抖，你看到了吗？'},
+      {kw:['好听','唱得好','棒'],   r:'（眼睛亮得不行）真的吗？老师也说我唱得不错！'},
+      {kw:['勇敢','上台','第一'],   r:'（他挠挠头）其实我特别怕。但是站上去就不怕了。'},
+      {kw:['话筒','麦克风'],        r:'（他比划了一下）那个话筒比我想的重多了。'},
+      {kw:['以后','舞台','梦想'],   r:'（认真地）妈，我想站更大的舞台。'}
+    ]
+  },
+
+  /* ---------- 6：11岁 · 独自去重庆 ---------- */
+  {
+    id:'train', year:'2018', label:'11岁 · 独自去重庆', emoji:'🚄', photoHint:'上传11岁时期照片',
+    lines:[
+      {t:'narration', s:'2018年，11岁。你送他到车站。'},
+      {t:'narration', s:'他背着一个小挎包，穿着那件长款羽绒服，一张嘴还是东北话。'},
+      {t:'narration', s:'你看着他小小的身影消失在检票口——他回过头，冲你摆了摆手。'},
+      {t:'ziyu',      s:'妈妈，你放心，我会好好照顾自己的。'},
+      {t:'thought',   s:'从松花江畔到嘉陵江边，两千多公里。你回到家，把他的机票一张一张收好，放进盒子里。'}
+    ],
+    options:[
+      {s:'「到了就给妈妈打电话」', r:'（用力点头）嗯！我到了第一件事就打！', sfx:'train'},
+      {s:'「想家了随时回来」',      r:'（笑）我才不想家呢。……妈，你哭了？', sfx:'whoosh'},
+      {s:'「妈妈相信你」',          r:'（沉默了一下，然后特别认真地说）妈妈，我会让你骄傲的。', sfx:'piano'}
+    ],
+    custom:[
+      {kw:['小心','注意','安全'], r:'（点头点得很快）知道啦，我又不是小孩了。'},
+      {kw:['吃饭','多吃','饭'],   r:'（拍拍包）我带了好多吃的！你放心吧。'},
+      {kw:['回来','回家'],       r:'（眼神闪了一下，很快又笑起来）嗯，放假就回。'},
+      {kw:['舍不得','想'],       r:'（他低下头，鞋尖蹭了蹭地面）……妈，车要开了。'},
+      {kw:['勇敢','坚强'],       r:'（抬头看你，眼睛亮亮的）我是男子汉！'}
+    ]
+  },
+
+  /* ---------- 7：练习生 · 孔女士的眼泪 ---------- */
+  {
+    id:'trainee', year:'2019', label:'练习生时期 · 孔女士的眼泪', emoji:'🎧', photoHint:'上传练习生时期照片',
+    lines:[
+      {t:'narration', s:'每一期公司发的物料，你都会看。'},
+      {t:'narration', s:'你看着他一个人在练习室角落压腿，看着他对着镜子一遍一遍地练同一个动作。'},
+      {t:'narration', s:'你看着他的背影，眼泪就下来了。'},
+      {t:'ziyu',      s:'妈，今天训练结束了，刚回宿舍。'},
+      {t:'thought',   s:'你打了很长一段话，又一个字一个字地删掉。最后只发了一句：「注意身体，多吃点。」'}
+    ],
+    options:[
+      {s:'「妈妈看了你的舞台，特别好」', r:'（过了一会儿才回）真的吗？我觉得还不够好。但我会继续努力的。', sfx:'message'},
+      {s:'「累了就休息，别硬撑」',        r:'不累。妈妈，我喜欢这个。真的。', sfx:'piano'},
+      {s:'「妈妈很想你」',                r:'（发来一张自拍，比了个耶）我也想你！你看我是不是变帅了？', sfx:'shutter'}
+    ],
+    custom:[
+      {kw:['心疼','舍不得','辛苦'], r:'（很快回过来）妈，你别心疼我。这是我选的路。'},
+      {kw:['努力','加油'],          r:'嗯。我每天都在进步，你看着吧。'},
+      {kw:['想家','回来'],          r:'（隔了很久）……想。但是我现在还不能回。'},
+      {kw:['瘦','吃饭','身体'],     r:'（发来一张盒饭的照片）你看，我有好好吃饭。'},
+      {kw:['骄傲'],                r:'（发来一串省略号）……妈。等我再厉害一点，你再说这句。'}
+    ]
+  },
+
+  /* ---------- 8：十三岁 · 疫情那一年 ---------- */
+  {
+    id:'pandemic', year:'2020', label:'十三岁 · 疫情那一年', emoji:'🏠', photoHint:'上传疫情期间照片',
+    lines:[
+      {t:'narration', s:'2020年，疫情来了。他被留在重庆，你被困在哈尔滨。'},
+      {t:'narration', s:'整整几个月，你们只能隔着屏幕见面。'},
+      {t:'ziyu',      s:'（视频里，他穿着睡衣坐在宿舍床上，头发有点长）妈，你那边还好吗？'},
+      {t:'narration', s:'他反过来问你。明明他才是那个一个人在异地的小孩。'},
+      {t:'thought',   s:'你看着屏幕里他瘦了一圈的脸，喉咙发紧。你想说「妈妈想你」，最后只说了「家里都好」。'}
+    ],
+    options:[
+      {s:'「妈妈想你了」',              r:'（他愣了一下，然后笑）我也想你们。（停了一下）妈，我没事的。', sfx:'heart'},
+      {s:'「你一个人怕不怕？」',        r:'（摇头）不怕。我每天练歌，练完就睡觉。时间过得可快了。', sfx:'piano'},
+      {s:'「有好好吃饭吗？」',          r:'（他把镜头转向桌子）你看，我自己煮的面。（然后有点不好意思）就是有点咸。', sfx:'laugh'}
+    ],
+    custom:[
+      {kw:['想','想念','见面'],     r:'（他把脸凑近镜头）妈，等能见面了，我第一个抱你。'},
+      {kw:['害怕','怕','孤单'],     r:'（他笑）不怕。宿舍里还有队友呢。而且我每天都在唱歌。'},
+      {kw:['吃饭','煮','做饭'],     r:'（他有点得意）我现在会煮面了！还有炒鸡蛋！'},
+      {kw:['加油','坚持','撑住'],   r:'（他握拳）嗯！妈，我们一起加油。'},
+      {kw:['回来','回家'],          r:'（他沉默了一下）等好了我就回去。我想吃你做的饭了。'},
+      {kw:['练歌','练习','训练'],   r:'（他点头）我每天都有练。变声期也不能停。'}
+    ]
+  },
+
+  /* ---------- 9：十三岁 · 变声期 ---------- */
+  {
+    id:'change', year:'2020', label:'十三岁 · 变声期', emoji:'🎙️', photoHint:'上传十三岁时期照片',
+    lines:[
+      {t:'narration', s:'2020年，他十三岁。变声期来得又急又猛。'},
+      {t:'narration', s:'他给你打电话，声音沙哑得不像他。'},
+      {t:'ziyu',      s:'妈……我唱不上去了。（他顿了顿）以前能唱上去的音，现在全破了。'},
+      {t:'thought',   s:'你听着电话那头他压着的声音，心像被什么攥住了。他那么喜欢唱歌。'}
+    ],
+    options:[
+      {s:'「没关系，慢慢来，会好的」',   r:'（沉默了几秒）……嗯。（你听见他轻轻吸了一下鼻子）', sfx:'cry'},
+      {s:'「唱不上去就休息，别硬唱」',   r:'不行。别人都在进步，我不能停。', sfx:'piano'},
+      {s:'「在妈妈心里，你怎么样都最好」', r:'（他笑了一下，声音有点哑）妈，你别这么说，我会哭的。', sfx:'heart'}
+    ],
+    custom:[
+      {kw:['变声','嗓子','声音'], r:'（他清了清嗓子）医生说要慢慢养。我知道的。'},
+      {kw:['加油','坚持','别放弃'], r:'嗯。我不会放弃的。这个我早就想好了。'},
+      {kw:['哭','难过','不甘'],   r:'（他停了一下）……妈，我没哭。就是有点不甘心。'},
+      {kw:['唱歌','喜欢','歌'],   r:'我还是喜欢唱。就算现在唱不好，我也喜欢。'},
+      {kw:['以后','未来','会好'], r:'我会等它过去的。等过去了，我要唱得比以前更好。'}
+    ]
+  },
+
+  /* ---------- 10：十四岁 · 中考那一年 ---------- */
+  {
+    id:'exam', year:'2021', label:'十四岁 · 中考那一年', emoji:'📚', photoHint:'上传十四岁时期照片',
+    lines:[
+      {t:'narration', s:'2021年，他十四岁。训练和功课，两头都不能落。'},
+      {t:'narration', s:'你给他打电话，他常常是在去练习室的路上，或者在回宿舍的车上。'},
+      {t:'ziyu',      s:'妈，我今天数学考了……（他停顿了一下）算了，不说了。'},
+      {t:'thought',   s:'你想说「没关系」，可你知道他不想要「没关系」。他想要的是「你做到了」。'}
+    ],
+    options:[
+      {s:'「考多少都没关系，妈妈不看重这个」', r:'（他沉默了一会儿）……可是我看重。妈，我想两边都做好。', sfx:'piano'},
+      {s:'「你已经很厉害了，妈妈知道」',       r:'（他轻轻「嗯」了一声）我下次会考好的。', sfx:'heart'},
+      {s:'「身体最重要，别熬太晚」',           r:'知道啦。（停了停）妈，你也早点睡，别老等我消息。', sfx:'message'}
+    ],
+    custom:[
+      {kw:['学习','成绩','考试'], r:'我会补上的。训练完我就看书。'},
+      {kw:['累','辛苦','熬夜'],   r:'还好。习惯了就不累了。'},
+      {kw:['中考','毕业'],       r:'（他笑）妈，你比我还紧张。'},
+      {kw:['放弃','退','休息'],   r:'不。我两个都要。'},
+      {kw:['骄傲','厉害'],       r:'你别老说这个……（顿了顿）等我真的做到了你再说。'}
+    ]
+  },
+
+  /* ---------- 11：十四岁 · 第一封粉丝的信 ---------- */
+  {
+    id:'letter', year:'2021', label:'十四岁 · 第一封粉丝的信', emoji:'💌', photoHint:'上传收到信件相关照片',
+    lines:[
+      {t:'narration', s:'2021年，某次活动结束后，他收到了一封信。'},
+      {t:'narration', s:'他在回宿舍的车上拆开，看了很久，然后拍了一张照片发给你。'},
+      {t:'ziyu',      s:'（照片里是一封手写的信，字迹很工整，上面写着「张泽禹，你要加油」）'},
+      {t:'ziyu',      s:'妈，这是我收到的第一封粉丝的信。（他顿了顿）我想把它好好收起来。'},
+      {t:'thought',   s:'你放大那张照片，看了很久。原来已经有人，和你一样，在认真地喜欢他。'}
+    ],
+    options:[
+      {s:'「要好好谢谢人家」',            r:'（他认真点头）嗯。我记住了。以后如果见到她，我要当面说谢谢。', sfx:'heart'},
+      {s:'「妈妈也给你写过信，记得吗」',  r:'（他愣住，然后声音软下来）……记得。你写的那封，我放在枕头下面了。', sfx:'piano'},
+      {s:'「小宝，你值得被喜欢」',        r:'（他沉默了一会儿，声音有点闷）妈，我会更努力的。不能辜负她们。', sfx:'message'}
+    ],
+    custom:[
+      {kw:['信','粉丝','喜欢'],   r:'（他小心地把信纸抚平）她写了整整两页。我看了好几遍。'},
+      {kw:['谢谢','感动','好'],   r:'（他笑）妈，你说我要不要回一封信？'},
+      {kw:['努力','加油','值得'], r:'（他点头）嗯。我不能让她们失望。'},
+      {kw:['收好','保存','放'],   r:'（他拍了一张照片给你看，信被整整齐齐地夹在书里）你看，我放好了。'},
+      {kw:['骄傲','长大'],       r:'（他不好意思地笑了）妈，你别老夸我。'}
+    ]
+  },
+
+  /* ---------- 12：十五岁 · 第一次看到绿色灯海 ---------- */
+  {
+    id:'light', year:'2022', label:'十五岁 · 第一次看到绿色灯海', emoji:'💚', photoHint:'上传活动现场照片',
+    lines:[
+      {t:'narration', s:'2022年，他十五岁。那天是一场线下活动。'},
+      {t:'narration', s:'你坐在很远的地方，看不清台上的人。但你看见台下一片一片亮起来的绿色。'},
+      {t:'narration', s:'那些灯牌上写着他的名字。'},
+      {t:'ziyu',      s:'（下台后，他发来一条语音，声音还有点抖）妈……你看到了吗？好多人举着我的灯牌。'},
+      {t:'thought',   s:'你想起他十一岁那年背着挎包走进检票口的背影。原来已经有人，在替他举着光了。'}
+    ],
+    options:[
+      {s:'「妈妈看到了，好多人爱你」',   r:'（他很久没说话）……我记住了。这片绿色，我一辈子都不会忘。', sfx:'crowd'},
+      {s:'「小宝，你值得」',             r:'（他笑了一声，带着鼻音）妈，你别说了。（顿了顿）……谢谢你。', sfx:'heart'},
+      {s:'「妈妈也在下面举着灯牌」',     r:'（他愣住）真的吗？你在哪儿？我怎么没看到你！', sfx:'star'}
+    ],
+    custom:[
+      {kw:['灯牌','绿色'],       r:'绿色的。他们说绿色是我的颜色。（他笑了）我特别喜欢。'},
+      {kw:['粉丝','喜欢','爱'],  r:'我要对得起他们。妈，我得更好才行。'},
+      {kw:['感动','哭','泪'],    r:'我没哭！……好吧，就一点点。'},
+      {kw:['骄傲','自豪'],       r:'嗯。（他声音很轻）妈，我现在可以听你说这句了。'},
+      {kw:['名字','喊','叫'],    r:'他们喊我名字的时候，我腿都是软的。'}
+    ]
+  },
+
+  /* ---------- 13：十六岁 · 一个人在外地过年 ---------- */
+  {
+    id:'newyear', year:'2023', label:'十六岁 · 一个人在外地过年', emoji:'🧧', photoHint:'上传过年相关照片',
+    lines:[
+      {t:'narration', s:'2023年春节。他没能回哈尔滨，一个人在重庆。'},
+      {t:'narration', s:'除夕那天，你包了饺子，拍了张照片发给他。'},
+      {t:'ziyu',      s:'（很快回了一张照片）妈，你看，我们宿舍也包饺子了。'},
+      {t:'narration', s:'照片里，几个少年围着一盘歪歪扭扭的饺子，他笑得很开心。'},
+      {t:'thought',   s:'你把他的照片放大了看。他瘦了，但眼睛还是亮的。你对着屏幕说了一句「过年好」。'}
+    ],
+    options:[
+      {s:'「过年好，小宝」',            r:'（秒回）过年好！妈，我在这边挺好的，你别担心。', sfx:'bell'},
+      {s:'「妈妈给你留了红包」',        r:'（他发来一个捂脸的表情）妈，我都多大了。……好吧，谢谢妈妈。', sfx:'laugh'},
+      {s:'「想吃妈妈做的什么菜？」',    r:'（他想都没想）锅包肉！还有你炖的那个排骨。等我回去你得给我做。', sfx:'heart'}
+    ],
+    custom:[
+      {kw:['饺子','包','做饭'],     r:'（他发来一张自己包的饺子特写）你看，这是我包的。有点丑，但能吃。'},
+      {kw:['年夜饭','过年','除夕'],  r:'（他发来一段视频，几个少年举着饮料碰杯，背景里有人说「新年快乐」）'},
+      {kw:['想家','回来','回家'],   r:'（他安静了一下）想。但是我在这儿也有家人。'},
+      {kw:['一个人','孤单'],       r:'（他笑）不孤单。宿舍里好几个人呢，热闹得很。'},
+      {kw:['新年','愿望','祝福'],   r:'（他认真地说）我的新年愿望是——希望妈妈身体健康，天天开心。'},
+      {kw:['锅包肉','排骨','东北'],  r:'（他眼睛都亮了）对对对！等我回去你都得给我做！'}
+    ]
+  },
+
+  /* ---------- 14：十六岁 · 生日蛋糕上的蜡烛 ---------- */
+  {
+    id:'birthday', year:'2023', label:'十六岁 · 生日蛋糕上的蜡烛', emoji:'🎂', photoHint:'上传生日相关照片',
+    lines:[
+      {t:'narration', s:'4月30日。他十六岁生日。他在外地，回不来。'},
+      {t:'narration', s:'你一个人在家，买了一个小蛋糕，插上蜡烛，拍了张照片发给他。'},
+      {t:'ziyu',      s:'（秒回）妈，你怎么自己买了蛋糕？'},
+      {t:'ziyu',      s:'（紧接着又发来一条）等我回去，我们一起吃一个大的。'},
+      {t:'thought',   s:'你把蜡烛点着，对着照片，替他许了个愿。你许的是：希望他永远做自己喜欢的事。'}
+    ],
+    options:[
+      {s:'「妈妈替你许了个愿」',   r:'（他追问）什么愿？……妈你说嘛。（你说了之后，他安静了很久）……好。我记住了。', sfx:'bell'},
+      {s:'「生日快乐，我的小宝」', r:'（他发来一张在练习室的自拍，比了个耶）十六岁啦！妈，我又长大一岁了。', sfx:'shutter'},
+      {s:'「想你了」',             r:'（他发来一段语音，背景里有风声）我也想。妈，明年生日我一定回家。', sfx:'heart'}
+    ],
+    custom:[
+      {kw:['生日','快乐'],       r:'谢谢妈妈。（他笑）你是每年第一个跟我说的人。'},
+      {kw:['蛋糕','蜡烛','甜'],  r:'你替我吃了吧？……不行，你也不能吃太多糖。'},
+      {kw:['长大','十六','年龄'], r:'（他感慨）好快啊。妈，我是不是长得太快了。'},
+      {kw:['回家','回来'],       r:'明年，一定。'},
+      {kw:['愿望','许愿'],       r:'我的愿望……是希望你别老为我担心。'}
+    ]
+  },
+
+  /* ---------- 15：演唱会 · 妈妈在台下 ---------- */
+  {
+    id:'concert', year:'2024', label:'演唱会 · 妈妈在台下', emoji:'🎫', photoHint:'上传演唱会现场照片',
+    lines:[
+      {t:'narration', s:'你坐在台下。周围的粉丝举着绿色的灯牌，有人在喊他的名字。'},
+      {t:'narration', s:'他站在台上，灯光打在他身上。你的手一直在抖，一直在哭。'},
+      {t:'ziyu',      s:'（唱完一首歌，喘着气）……谢谢大家。也谢谢，一直支持我的家人。'},
+      {t:'thought',   s:'他看见你了。他在台上冲你的方向笑了一下。你赶紧低下头擦眼泪，怕被旁边的粉丝看到。'}
+    ],
+    options:[
+      {s:'（用力挥动手里的灯牌）',   r:'（他在台上看到了，笑得更大声，冲你的方向比了个心）', sfx:'crowd'},
+      {s:'（低头打字：妈妈在下面）', r:'（下台后秒回）我看到你了！你哭了吗？别哭，我唱得好不好？', sfx:'message'},
+      {s:'（什么也不说，只是看着）', r:'（唱到某一句的时候，他突然望向你的方向，眼眶有点红）', sfx:'cry'}
+    ],
+    custom:[
+      {kw:['唱得好','好听','棒'],  r:'（在后台回你）嘿嘿。那下次我唱给你一个人听。'},
+      {kw:['帅','好看'],          r:'（发来一个得意的表情）那当然，我今天状态超好。'},
+      {kw:['累不累','辛苦'],       r:'还好！台下那么多人喊我名字，一点都不累。'},
+      {kw:['为你骄傲','骄傲'],     r:'（隔了一会儿）……妈，你在台下的时候，我一眼就看到你了。'},
+      {kw:['灯牌','绿色'],         r:'（他笑）绿色的那片海，我永远都记得。'}
+    ]
+  },
+
+  /* ---------- 16：十八岁 · 写给妈妈的歌 ---------- */
+  {
+    id:'song', year:'2025', label:'十八岁 · 写给妈妈的歌', emoji:'🎵', photoHint:'上传十八岁时期照片',
+    lines:[
+      {t:'narration', s:'2025年，他十八岁。他写了一首歌。'},
+      {t:'narration', s:'他把 demo 发给你的时候，什么也没说，只发了三个字：「妈，听听。」'},
+      {t:'ziyu',      s:'（歌里有一句词，写的是小时候的一个下午——是报纸，是厨房，是他喊「妈妈」的那个声音。）'},
+      {t:'thought',   s:'你听完，坐在沙发上很久没有动。你想起他十岁那年站在你面前说「我想去学唱歌」。原来他都记得。'}
+    ],
+    options:[
+      {s:'「小宝，妈妈听完了」',       r:'（他很久才回）……好不好听？（后面跟了一个小心翼翼的表情）', sfx:'piano'},
+      {s:'「妈妈都记得，那天下午」',   r:'（他打了一大段字，又全部删掉，最后只发了一句）我也记得。', sfx:'heart'},
+      {s:'「这首歌，妈妈会一直听」',   r:'（他发来一个哭脸）妈你别这样，我在飞机上，等下要被人看到我哭了。', sfx:'cry'}
+    ],
+    custom:[
+      {kw:['好听','喜欢'],         r:'真的吗？我没给别人听过。你是第一个。'},
+      {kw:['歌词','写','词'],      r:'我写的时候一直在想小时候的事。'},
+      {kw:['报纸','厨房','小时候'], r:'（他笑了）你居然还记得。'},
+      {kw:['妈妈','爱','给'],      r:'（他打字打了很久）妈，这首歌是给你的。'},
+      {kw:['谢谢','感动'],         r:'你别跟我说谢谢。应该是我说。'}
+    ]
+  },
+
+  /* ---------- 17：十八岁 · 成年礼 ---------- */
+  {
+    id:'adult', year:'2025', label:'十八岁 · 成年礼', emoji:'🕯️', photoHint:'上传成年礼相关照片',
+    lines:[
+      {t:'narration', s:'2025年4月30日。他十八岁。'},
+      {t:'narration', s:'你写了一封信，拍下来发给他。信不长，你写了三个晚上。'},
+      {t:'ziyu',      s:'（他看了很久，然后打来电话，第一句话是）……妈，你以前怎么不告诉我。'},
+      {t:'narration', s:'他说的，是你信里写的那些。他小时候的事，你偷偷掉的眼泪，你一个人收好的机票。'},
+      {t:'thought',   s:'你说，告诉你干什么，你那时候那么小。他在电话那头很久没说话。然后你听见他吸了一下鼻子。'}
+    ],
+    options:[
+      {s:'「小宝，十八岁生日快乐」',   r:'（他笑了一声，带着鼻音）妈，我成年了。（顿了顿）以后换我保护你。', sfx:'bell'},
+      {s:'「你永远是妈妈的小宝」',     r:'（他沉默了几秒）……嗯。（你听见他深吸了一口气）我永远是。', sfx:'heart'},
+      {s:'「妈妈写的都是真的」',       r:'（他声音有点哑）我知道。妈，我都知道。（停了一下）你辛苦了。', sfx:'cry'}
+    ],
+    custom:[
+      {kw:['成年','十八','长大'],   r:'（他感叹）好快啊。妈，我是不是真的长大了。'},
+      {kw:['信','写信','写'],       r:'（他顿了一下）那封信我存下来了。反复看了好几遍。'},
+      {kw:['保护','换我','照顾'],   r:'（他认真地说）以后换我保护你。我说真的。'},
+      {kw:['小时候','回忆','以前'], r:'（他笑了）妈，你记性怎么这么好。……其实我也是。'},
+      {kw:['辛苦','付出','陪'],     r:'（他声音低下来）妈，这些年，谢谢你。'},
+      {kw:['未来','以后'],          r:'（他想了想）以后我要带你去很多地方。我唱歌给你听，我带你看海。'}
+    ]
+  },
+
+  /* ---------- 18：2026 · 大明星 ---------- */
+  {
+    id:'star', year:'2026', label:'2026 · 大明星', emoji:'🌟', photoHint:'上传 2026 年照片',
+    lines:[
+      {t:'narration', s:'2026年。你打开手机，看到他站在PRADA的镜头前，站在万人演唱会的舞台中央，站在新疆塔城的旷野里。'},
+      {t:'narration', s:'他还是那个会喊「妈妈」的小宝。但全世界都在喊他的名字了。'},
+      {t:'ziyu',      s:'（视频通话界面）妈，我今天又飞了一个新城市。这里的海特别好看。'},
+      {t:'thought',   s:'你看着屏幕里他的脸。从那个抱着报纸喊妈妈的小豆丁，到此刻这个被无数人爱着的人。'}
+    ],
+    options:[
+      {s:'「小宝，妈妈为你骄傲」',   r:'（笑）妈，你每次都说这句。……但我也每次都想听。', sfx:'piano'},
+      {s:'「你永远是妈妈的小宝」',   r:'（安静了两秒，声音有点哑）嗯。我永远是。', sfx:'heart'},
+      {s:'「爱没有终点」',           r:'（他看着镜头，眼睛弯弯的）妈，我知道。', sfx:'star'}
+    ],
+    custom:[
+      {kw:['骄傲','自豪'],        r:'（他挠挠头）好啦好啦，你别老夸我，我会飘的。'},
+      {kw:['想你','想见你'],      r:'（把镜头转了一圈）你看，这就是我住的地方。下次带你一起来。'},
+      {kw:['辛苦','累'],          r:'不辛苦。妈，我现在做的每一件事，都是我想做的。'},
+      {kw:['小宝','小时候'],      r:'（笑）你怎么老提我小时候。……好吧，我也记得。'},
+      {kw:['爱','永远','终点'],   r:'（他看着镜头，认真地说）妈，爱没有终点。这句话我记住了。'},
+      {kw:['回家','过年'],        r:'（点头）嗯，今年一定回。我给你带好吃的。'}
+    ]
+  }
+];
+
+/* =========================================================
+   六、工具函数
+   ========================================================= */
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function $(id){ return document.getElementById(id); }
+
+function getCustomReply(node, text){
+  if(node && node.custom){
+    for(const c of node.custom){
+      if(c.kw.some(k => text.includes(k))) return c.r;
+    }
+  }
+  for(const c of GLOBAL_KW){
+    if(c.kw.some(k => text.includes(k))) return c.r;
+  }
+  return '（他安静了一下，认真地看着你）……妈妈，我听到了。';
+}
+
+/* =========================================================
+   七、星空背景
+   ========================================================= */
+function drawStars(){
+  const c = $('starfield');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  let dpr = 1;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = innerWidth * dpr;
+    c.height = innerHeight * dpr;
+    c.style.width = innerWidth + 'px';
+    c.style.height = innerHeight + 'px';
+    const count = Math.min(160, Math.floor(innerWidth * innerHeight / 9000));
+    stars = Array.from({length: count}, () => ({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: (Math.random() * 1.3 + .35) * dpr,
+      a: Math.random() * Math.PI * 2,
+      s: Math.random() * .018 + .004
+    }));
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  function loop(){
+    ctx.clearRect(0, 0, c.width, c.height);
+    for(const st of stars){
+      st.a += st.s;
+      const alpha = .18 + Math.abs(Math.sin(st.a)) * .68;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(160,255,200,' + alpha.toFixed(3) + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* =========================================================
+   八、对话渲染
+   ========================================================= */
+let renderToken = 0;
+
+function currentNode(){ return NODES[state.nodeIndex] || NODES[0]; }
+
+function addBubble(line){
+  return new Promise(resolve => {
+    const dialog = $('dialog');
+    const el = document.createElement('div');
+    el.className = 'bubble bubble-' + line.t;
+    el.textContent = line.s;
+    dialog.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    dialog.scrollTop = dialog.scrollHeight;
+    setTimeout(() => {
+      dialog.scrollTop = dialog.scrollHeight;
+      resolve();
+    }, 460);
+  });
+}
+
+function updateScene(node){
+  $('chapterLabel').textContent = node.label;
+  const ph = $('photoPlaceholder');
+  const img = $('photoImg');
+  const stored = state.images[node.id];
+  if(stored){
+    img.src = stored;
+    img.classList.remove('hidden');
+    ph.classList.add('hidden');
+  }else{
+    img.classList.add('hidden');
+    ph.classList.remove('hidden');
+    ph.textContent = node.emoji;
+  }
+}
+
+function updateProgress(){
+  const p = ((state.nodeIndex + 1) / NODES.length) * 100;
+  $('progressFill').style.width = p + '%';
+}
+
+function hideOptions(){
+  $('options').innerHTML = '';
+}
+
+async function playNode(index){
+  const token = ++renderToken;
+  state.nodeIndex = index;
+
+  const node = NODES[index];
+  if(!node) return;
+
+  updateProgress();
+  updateScene(node);
+  $('dialog').innerHTML = '';
+  hideOptions();
+
+  autoSave();
+
+  for(const line of node.lines){
+    if(token !== renderToken) return;
+    await addBubble(line);
+    if(token !== renderToken) return;
+    await sleep(280);
+  }
+
+  if(token !== renderToken) return;
+  showOptions(node);
+}
+
+function showOptions(node){
+  const box = $('options');
+  box.innerHTML = '';
+
+  node.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt.s;
+    btn.onclick = () => chooseOption(node, i);
+    box.appendChild(btn);
+  });
+
+  const row = document.createElement('div');
+  row.className = 'custom-row';
+  row.innerHTML =
+    '<input type="text" id="customInput" placeholder="说点什么给小宝……" maxlength="60">' +
+    '<button id="customSend">发送</button>';
+  box.appendChild(row);
+
+  const send = () => {
+    const inp = $('customInput');
+    if(!inp) return;
+    const v = inp.value.trim();
+    if(!v) return;
+    inp.value = '';
+    chooseCustom(node, v);
+  };
+
+  $('customSend').onclick = send;
+  $('customInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter') send();
+  });
+}
+
+async function chooseOption(node, i){
+  const opt = node.options[i];
+  state.choices[node.id] = i;
+  hideOptions();
+  playSfx('click');
+
+  await addBubble({t:'mother', s:opt.s});
+  await sleep(380);
+
+  playSfx(opt.sfx);
+  await addBubble({t:'ziyu', s:opt.r});
+  await sleep(300);
+
+  showContinue(node);
+}
+
+async function chooseCustom(node, text){
+  hideOptions();
+  playSfx('click');
+
+  await addBubble({t:'mother', s:text});
+  await sleep(480);
+
+  playSfx('message');
+  const reply = getCustomReply(node, text);
+  await addBubble({t:'ziyu', s:reply});
+  await sleep(300);
+
+  showContinue(node);
+}
+
+function showContinue(node){
+  const box = $('options');
+  box.innerHTML = '';
+
+  const idx = NODES.indexOf(node);
+  const isLast = idx >= NODES.length - 1;
+
+  const btn = document.createElement('button');
+  btn.className = 'continue-btn';
+  btn.textContent = isLast ? '走 向 2 0 2 6' : '继 续';
+  btn.onclick = () => {
+    playSfx('click');
+    if(isLast){
+      showEnding();
+    }else{
+      playNode(idx + 1);
+    }
+  };
+  box.appendChild(btn);
+}
+
+/* =========================================================
+   九、结局 & 自由模式
+   ========================================================= */
+function showEnding(){
+  stopBGM();
+  playSfx('star');
+  setTimeout(() => playSfx('bell'), 600);
+  $('progressFill').style.width = '100%';
+  $('ending').classList.add('show');
+}
+
+function startFreeMode(){
+  $('ending').classList.remove('show');
+  $('game').classList.add('show');
+  $('chapterLabel').textContent = '自由模式 · 想说什么都可以';
+  $('progressFill').style.width = '100%';
+  $('dialog').innerHTML = '';
+  $('photoPlaceholder').textContent = '💚';
+  $('photoImg').classList.add('hidden');
+  $('photoPlaceholder').classList.remove('hidden');
+
+  addBubble({t:'narration', s:'（现在，你可以随意对张泽禹说点什么了。）'});
+  setTimeout(() => addBubble({t:'ziyu', s:'妈，我在呢。'}), 600);
+  setTimeout(showFreeInput, 1100);
+  startBGM();
+}
+
+function showFreeInput(){
+  const box = $('options');
+  box.innerHTML =
+    '<div class="custom-row">' +
+      '<input type="text" id="freeInput" placeholder="想对张泽禹说点什么……" maxlength="60">' +
+      '<button id="freeSend">发送</button>' +
+    '</div>';
+
+  const send = () => {
+    const inp = $('freeInput');
+    if(!inp) return;
+    const v = inp.value.trim();
+    if(!v) return;
+    inp.value = '';
+    handleFree(v);
+    setTimeout(() => { const el = $('freeInput'); if(el) el.focus(); }, 50);
+  };
+
+  $('freeSend').onclick = send;
+  $('freeInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter') send();
+  });
+}
+
+async function handleFree(text){
+  await addBubble({t:'mother', s:text});
+  await sleep(420);
+  playSfx('message');
+  const reply = getCustomReply(null, text);
+  await addBubble({t:'ziyu', s:reply});
+}
+
+/* =========================================================
+   十、存档 / 读档
+   ========================================================= */
+function readSaves(){
+  try{
+    return JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
+  }catch(e){ return {}; }
+}
+
+function writeSaves(obj){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(obj));
+  }catch(e){
+    console.warn('存档失败', e);
+  }
+}
+
+function doSave(slot){
+  const saves = readSaves();
+  saves[slot] = {
+    nodeIndex: state.nodeIndex,
+    choices: state.choices,
+    avatar: state.avatar,
+    ts: Date.now(),
+    label: (NODES[state.nodeIndex] || NODES[0]).label
+  };
+  writeSaves(saves);
+}
+
+function autoSave(){
+  const saves = readSaves();
+  saves.auto = {
+    nodeIndex: state.nodeIndex,
+    choices: state.choices,
+    avatar: state.avatar,
+    ts: Date.now(),
+    label: (NODES[state.nodeIndex] || NODES[0]).label
+  };
+  writeSaves(saves);
+}
+
+function doLoad(slot){
+  const saves = readSaves();
+  const s = saves[slot];
+  if(!s) return;
+
+  state.nodeIndex = Math.min(s.nodeIndex || 0, NODES.length - 1);
+  state.choices = s.choices || {};
+  if(s.avatar) state.avatar = s.avatar;
+
+  closeModal();
+  playSfx('star');
+  playNode(state.nodeIndex);
+}
+
+function formatTime(ts){
+  try{
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+           ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }catch(e){ return ''; }
+}
+
+function openSaveMenu(){
+  openModal('存 档', '', body => {
+    const render = () => {
+      const saves = readSaves();
+      let html = '';
+      ['slot1','slot2','slot3'].forEach((sl, i) => {
+        const s = saves[sl];
+        html +=
+          '<div class="slot" data-slot="' + sl + '">' +
+            '<div class="slot-title">存档位 ' + (i + 1) +
+              (s ? ' · ' + s.label : ' · 空') + '</div>' +
+            '<div class="slot-meta">' +
+              (s ? formatTime(s.ts) : '点击保存当前进度') + '</div>' +
+          '</div>';
+      });
+      if(saves.auto){
+        html +=
+          '<div class="slot" style="opacity:.75;cursor:default;">' +
+            '<div class="slot-title">自动存档 · ' + saves.auto.label + '</div>' +
+            '<div class="slot-meta">' + formatTime(saves.auto.ts) + '</div>' +
+          '</div>';
+      }
+      body.innerHTML = html;
+
+      body.querySelectorAll('.slot[data-slot]').forEach(el => {
+        el.onclick = () => {
+          doSave(el.dataset.slot);
+          playSfx('message');
+          render();
+        };
+      });
+    };
+    render();
+  });
+}
+
+function openLoadMenu(){
+  openModal('读 档', '', body => {
+    const saves = readSaves();
+    let html = '';
+    let hasAny = false;
+
+    ['slot1','slot2','slot3'].forEach((sl, i) => {
+      const s = saves[sl];
+      if(s) hasAny = true;
+      html +=
+        '<div class="slot' + (s ? '' : ' empty') + '" data-slot="' + (s ? sl : '') + '">' +
+          '<div class="slot-title">存档位 ' + (i + 1) +
+            (s ? ' · ' + s.label : ' · 空') + '</div>' +
+          '<div class="slot-meta">' +
+            (s ? formatTime(s.ts) : '暂无记录') + '</div>' +
+        '</div>';
+    });
+
+    if(saves.auto){
+      hasAny = true;
+      html +=
+        '<div class="slot" data-slot="auto">' +
+          '<div class="slot-title">自动存档 · ' + saves.auto.label + '</div>' +
+          '<div class="slot-meta">' + formatTime(saves.auto.ts) + '</div>' +
+        '</div>';
+    }
+
+    if(!hasAny){
+      html += '<p class="tip">还没有任何存档。先去经历一段故事吧。</p>';
+    }
+
+    body.innerHTML = html;
+
+    body.querySelectorAll('.slot[data-slot]').forEach(el => {
+      const slot = el.dataset.slot;
+      if(!slot) return;
+      el.onclick = () => doLoad(slot);
+    });
+  });
+}
+
+/* =========================================================
+   十一、设置
+   ========================================================= */
+function openSettings(){
+  const html =
+    '<div class="setting-row">' +
+      '<span>背景音乐</span>' +
+      '<button class="toggle ' + (state.bgmOn ? 'on' : '') + '" id="tgBgm">' +
+        (state.bgmOn ? '开' : '关') + '</button>' +
+    '</div>' +
+    '<div class="setting-row">' +
+      '<span>音效</span>' +
+      '<button class="toggle ' + (state.sfxOn ? 'on' : '') + '" id="tgSfx">' +
+        (state.sfxOn ? '开' : '关') + '</button>' +
+    '</div>' +
+    '<div class="setting-row">' +
+      '<span>孔女士头像</span>' +
+      '<button class="mini-btn" id="upAvatar">上传</button>' +
+    '</div>' +
+    '<div class="setting-row">' +
+      '<span>自定义背景音乐</span>' +
+      '<button class="mini-btn" id="upBgm">选择音频</button>' +
+    '</div>' +
+    '<p class="tip">提示：可上传《失眠了》吴琳柯版本音频文件作为背景音乐，' +
+    '未上传时使用内置的柔和旋律。头像与照片仅保存在本机浏览器中。</p>';
+
+  openModal('设 置', html, body => {
+    const tgBgm = body.querySelector('#tgBgm');
+    const tgSfx = body.querySelector('#tgSfx');
+
+    tgBgm.onclick = () => {
+      state.bgmOn = !state.bgmOn;
+      tgBgm.classList.toggle('on', state.bgmOn);
+      tgBgm.textContent = state.bgmOn ? '开' : '关';
+      persistSettings();
+      if(state.bgmOn) startBGM(); else stopBGM();
+    };
+
+    tgSfx.onclick = () => {
+      state.sfxOn = !state.sfxOn;
+      tgSfx.classList.toggle('on', state.sfxOn);
+      tgSfx.textContent = state.sfxOn ? '开' : '关';
+      persistSettings();
+      if(state.sfxOn) playSfx('click');
+    };
+
+    body.querySelector('#upAvatar').onclick = () => {
+      pickFile('image/*', dataUrl => {
+        state.avatar = dataUrl;
+        playSfx('shutter');
+      });
+    };
+
+    body.querySelector('#upBgm').onclick = () => {
+      pickFile('audio/*', null, file => {
+        loadBGMFile(file);
+        state.bgmOn = true;
+        persistSettings();
+      });
+    };
+  });
+}
+
+function pickFile(accept, onDataUrl, onFile){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = accept;
+  input.onchange = () => {
+    const f = input.files && input.files[0];
+    if(!f) return;
+    if(onFile){ onFile(f); return; }
+    const reader = new FileReader();
+    reader.onload = e => onDataUrl(e.target.result);
+    reader.readAsDataURL(f);
+  };
+  input.click();
+}
+
+/* =========================================================
+   十二、弹窗控制
+   ========================================================= */
+function openModal(title, html, onMount){
+  $('modalTitle').textContent = title;
+  const body = $('modalBody');
+  body.innerHTML = html;
+  $('modal').classList.add('show');
+  if(onMount) onMount(body);
+}
+
+function closeModal(){
+  $('modal').classList.remove('show');
+}
+
+/* =========================================================
+   十三、初始化
+   ========================================================= */
+function init(){
+  drawStars();
+  restoreSettings();
+
+  $('enterBtn').onclick = () => {
+    getCtx();
+    playSfx('star');
+    $('intro').classList.add('hide');
+    setTimeout(() => {
+      $('intro').style.display = 'none';
+      $('game').classList.add('show');
+      startBGM();
+      playNode(0);
+    }, 850);
+  };
+
+  $('saveBtn').onclick = () => { playSfx('click'); openSaveMenu(); };
+  $('loadBtn').onclick = () => { playSfx('click'); openLoadMenu(); };
+  $('settingBtn').onclick = () => { playSfx('click'); openSettings(); };
+  $('modalClose').onclick = () => { playSfx('click'); closeModal(); };
+  $('modal').onclick = e => {
+    if(e.target === $('modal')) closeModal();
+  };
+
+  $('uploadPhoto').onclick = () => {
+    pickFile('image/*', dataUrl => {
+      const node = currentNode();
+      state.images[node.id] = dataUrl;
+      updateScene(node);
+      playSfx('shutter');
+    });
+  };
+
+  $('restartBtn').onclick = () => {
+    playSfx('click');
+    state.nodeIndex = 0;
+    state.choices = {};
+    $('ending').classList.remove('show');
+    $('game').classList.add('show');
+    playNode(0);
+    startBGM();
+  };
+
+  $('freeModeBtn').onclick = () => {
+    playSfx('click');
+    startFreeMode();
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if(!bgmAudio) return;
+    bgmAudio.volume = document.hidden ? .08 : .35;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
+```
